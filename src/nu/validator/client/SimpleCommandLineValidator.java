@@ -63,6 +63,8 @@ public class SimpleCommandLineValidator {
     private static OutputStream out;
 
     private static Pattern filterPattern;
+	
+	private static boolean filterInclusive;
 
     private static MessageEmitterAdapter errorHandler;
 
@@ -140,7 +142,8 @@ public class SimpleCommandLineValidator {
                     exitZeroAlways = true;
                 } else if ("--asciiquotes".equals(args[i])) {
                     asciiQuotes = true;
-                } else if ("--filterfile".equals(args[i])) {
+                } else if ("--filterfile".equals(args[i]) || "--filterfile-inclusive".equals(args[i])) {
+					filterInclusive = filterInclusive || "--filterfile-inclusive".equals(args[i]);
                     File filterFile = new File(args[++i]);
                     StringBuilder sb = new StringBuilder();
                     try (BufferedReader reader = //
@@ -169,7 +172,8 @@ public class SimpleCommandLineValidator {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                } else if ("--filterpattern".equals(args[i])) {
+                } else if ("--filterpattern".equals(args[i]) || "--filterpattern-inclusive".equals(args[i])) {
+					filterInclusive = filterInclusive || "--filterpattern-inclusive".equals(args[i]);
                     if ("".equals(filterString)) {
                         filterString = args[++i];
                     } else {
@@ -390,21 +394,21 @@ public class SimpleCommandLineValidator {
         ImageCollector imageCollector = new ImageCollector(sourceCode);
         boolean showSource = false;
         if (outputFormat == OutputFormat.TEXT) {
-            errorHandler = new MessageEmitterAdapter(filterPattern, sourceCode,
-                    showSource, imageCollector, lineOffset, true,
+            errorHandler = new MessageEmitterAdapter(filterPattern, filterInclusive, 
+					sourceCode, showSource, imageCollector, lineOffset, true,
                     new TextMessageEmitter(out, asciiQuotes));
         } else if (outputFormat == OutputFormat.GNU) {
-            errorHandler = new MessageEmitterAdapter(filterPattern, sourceCode,
-                    showSource, imageCollector, lineOffset, true,
+            errorHandler = new MessageEmitterAdapter(filterPattern, filterInclusive, 
+					sourceCode, showSource, imageCollector, lineOffset, true,
                     new GnuMessageEmitter(out, asciiQuotes));
         } else if (outputFormat == OutputFormat.XML) {
-            errorHandler = new MessageEmitterAdapter(filterPattern, sourceCode,
-                    showSource, imageCollector, lineOffset, true,
+            errorHandler = new MessageEmitterAdapter(filterPattern, filterInclusive, 
+					sourceCode, showSource, imageCollector, lineOffset, true,
                     new XmlMessageEmitter(new XmlSerializer(out)));
         } else if (outputFormat == OutputFormat.JSON) {
             String callback = null;
-            errorHandler = new MessageEmitterAdapter(filterPattern, sourceCode,
-                    showSource, imageCollector, lineOffset, true,
+            errorHandler = new MessageEmitterAdapter(filterPattern, filterInclusive, 
+					sourceCode, showSource, imageCollector, lineOffset, true,
                     new JsonMessageEmitter(
                             new nu.validator.json.Serializer(out), callback));
         } else {

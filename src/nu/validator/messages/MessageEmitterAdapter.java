@@ -417,6 +417,8 @@ public final class MessageEmitterAdapter implements ErrorHandler {
     private boolean loggingOk = false;
 
     private boolean errorsOnly = false;
+	
+	private boolean filterInclusive = false;
 
     @SuppressWarnings("deprecation")
     protected static String scrub(String s) throws SAXException {
@@ -447,11 +449,12 @@ public final class MessageEmitterAdapter implements ErrorHandler {
         }
     }
 
-    public MessageEmitterAdapter(Pattern filterPattern, SourceCode sourceCode,
+    public MessageEmitterAdapter(Pattern filterPattern, boolean filterInclusive, SourceCode sourceCode,
             boolean showSource, ImageCollector imageCollector, int lineOffset,
             boolean batchMode, MessageEmitter messageEmitter) {
         super();
         this.filterPattern = filterPattern;
+		this.filterInclusive = filterInclusive;
         this.sourceCode = sourceCode;
         this.emitter = messageEmitter;
         this.exactErrorHandler = new ExactErrorHandler(this);
@@ -749,10 +752,13 @@ public final class MessageEmitterAdapter implements ErrorHandler {
             int oneBasedLine, int oneBasedColumn, boolean exact)
             throws SAXException {
         String msg = message.getMessage();
-        if (filterPattern != null && msg != null
-                && filterPattern.matcher(msg).matches()) {
-            return;
-        }
+        boolean patternMatches = (filterPattern != null && msg != null
+                && filterPattern.matcher(msg).matches());
+				
+		if ((patternMatches && !filterInclusive)
+			|| (!patternMatches && filterInclusive)){	
+			return;
+		}
         if (loggingOk
                 && (type.getSuperType() == "error")
                 && spec != EmptySpec.THE_INSTANCE

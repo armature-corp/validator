@@ -922,24 +922,24 @@ class VerifierServletTransaction implements DocumentModeHandler, SchemaResolver 
                             new XmlSerializer(out);
                 }
                 emitter = new XhtmlSaxEmitter(contentHandler);
-                errorHandler = new MessageEmitterAdapter(filterPattern,
+                errorHandler = new MessageEmitterAdapter(filterPattern, false,
                         sourceCode, showSource, imageCollector, lineOffset,
                         false, new XhtmlMessageEmitter(contentHandler));
                 PageEmitter.emit(contentHandler, this);
             } else {
                 if (outputFormat == OutputFormat.TEXT) {
                     response.setContentType("text/plain; charset=utf-8");
-                    errorHandler = new MessageEmitterAdapter(filterPattern,
+                    errorHandler = new MessageEmitterAdapter(filterPattern, false,
                             sourceCode, showSource, null, lineOffset, false,
                             new TextMessageEmitter(out, asciiQuotes));
                 } else if (outputFormat == OutputFormat.GNU) {
                     response.setContentType("text/plain; charset=utf-8");
-                    errorHandler = new MessageEmitterAdapter(filterPattern,
+                    errorHandler = new MessageEmitterAdapter(filterPattern, false,
                             sourceCode, showSource, null, lineOffset, false,
                             new GnuMessageEmitter(out, asciiQuotes));
                 } else if (outputFormat == OutputFormat.XML) {
                     response.setContentType("application/xml");
-                    errorHandler = new MessageEmitterAdapter(filterPattern,
+                    errorHandler = new MessageEmitterAdapter(filterPattern, false,
                             sourceCode, showSource, null, lineOffset, false,
                             new XmlMessageEmitter(new XmlSerializer(out)));
                 } else if (outputFormat == OutputFormat.JSON) {
@@ -948,7 +948,7 @@ class VerifierServletTransaction implements DocumentModeHandler, SchemaResolver 
                     } else {
                         response.setContentType("application/javascript; charset=utf-8");
                     }
-                    errorHandler = new MessageEmitterAdapter(filterPattern,
+                    errorHandler = new MessageEmitterAdapter(filterPattern, false,
                             sourceCode, showSource, null, lineOffset, false,
                             new JsonMessageEmitter(
                                     new nu.validator.json.Serializer(out),
